@@ -137,8 +137,8 @@ kiwi.SettingsView = Backbone.View.extend({
        }
        function onChangeLoginType() {
            if (settings.loginType === settings.LoginType.ACCOUNT) {
-               $('.loginTypeAccount', el).attr('checked', 'checked');
                $('.loginTypeGuest', el).removeAttr('checked');
+               $('.loginTypeAccount', el).attr('checked', 'checked');
            } else {
                $('.loginTypeAccount', el).removeAttr('checked');
                $('.loginTypeGuest', el).attr('checked', 'checked');
@@ -194,25 +194,23 @@ kiwi.SettingsView = Backbone.View.extend({
        $('.loginTypeAccount', el).change(function (e) {
            if ($(e.target).is(':checked')) {
                settings.loginType = settings.LoginType.ACCOUNT;
-           }
-           if (settings.loginType === settings.LoginType.ACCOUNT) {
-               $('.loginTypeAccount', el).attr('checked', 'checked');
-               $('.loginTypeGuest', el).removeAttr('checked');
-           } else {
-               $('.loginTypeAccount', el).removeAttr('checked');
-               $('.loginTypeGuest', el).attr('checked', 'checked');
+               if (settings.loginType === settings.LoginType.ACCOUNT) {
+                   $('.loginTypeAccount', el).attr('checked', 'checked');
+               } else {
+                   $('.loginTypeGuest', el).attr('checked', 'checked');
+               }
            }
        });
        $('.loginTypeGuest', el).change(function (e) {
            if ($(e.target).is(':checked')) {
                settings.loginType = settings.LoginType.GUEST;
-           }
-           if (settings.loginType === settings.LoginType.ACCOUNT) {
-               $('.loginTypeAccount', el).attr('checked', 'checked');
-               $('.loginTypeGuest', el).removeAttr('checked');
-           } else {
-               $('.loginTypeAccount', el).removeAttr('checked');
-               $('.loginTypeGuest', el).attr('checked', 'checked');
+               if (settings.loginType === settings.LoginType.ACCOUNT) {
+                   $('.loginTypeAccount', el).attr('checked', 'checked');
+                   $('.loginTypeGuest', el).removeAttr('checked');
+               } else {
+                   $('.loginTypeAccount', el).removeAttr('checked');
+                   $('.loginTypeGuest', el).attr('checked', 'checked');
+               }
            }
        });
        $('.searchOnTag', el).change(function (e) {
