@@ -5,13 +5,29 @@ xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
 http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	<servlet>
-		<servlet-name>Kiwi</servlet-name>
-		<servlet-class>kiwi.KiwiServlet</servlet-class>
+        <servlet-name>Kiwi</servlet-name>
+        <servlet-class>kiwi.KiwiServlet</servlet-class>
 	</servlet>
-	<servlet-mapping>
-		<servlet-name>Kiwi</servlet-name>
-		<url-pattern>/kiwi</url-pattern>
-	</servlet-mapping>
+    <servlet>
+        <servlet-name>Entries</servlet-name>
+        <servlet-class>kiwi.servlet.EntriesServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ChangeLog</servlet-name>
+        <servlet-class>kiwi.servlet.ChangeLogServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Kiwi</servlet-name>
+        <url-pattern>/kiwi</url-pattern>
+    </servlet-mapping>
+     <servlet-mapping>
+        <servlet-name>Entries</servlet-name>
+        <url-pattern>/kiwi/entries</url-pattern>
+    </servlet-mapping>
+     <servlet-mapping>
+        <servlet-name>ChangeLog</servlet-name>
+        <url-pattern>/kiwi/changelog</url-pattern>
+    </servlet-mapping>
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>

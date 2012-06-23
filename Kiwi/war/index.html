@@ -9,19 +9,64 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="css/entries.css" type="text/css" media="screen" title="entries.css" charset="utf-8"/>
     <title>Hello App Engine</title>
   </head>
 
   <body>
     <h1>Hello App Engine!</h1>
-	
-    <table>
-      <tr>
-        <td colspan="2" style="font-weight:bold;">Available Servlets:</td>        
-      </tr>
-      <tr>
-        <td><a href="kiwi">Kiwi</a></td>
-      </tr>
-    </table>
+    
+    <input type = "text" id = "tag">
+    <input type = "text" id = "date">
+    <input type = "text" id = "body">
+    <button id = "post">post</button>
+    <button id = "get">get</button>
+    <button id = "delete">deleteAll</button>
+    <p id = "console">console</p>
+    
+    <script src = "js/lib/jquery-1.7.2.min.js"></script>
+    <script src = "js/lib/underscore-min.js"></script>
+    <script src = "js/lib/backbone-min.js"></script>
+    <script src = "js/lib/jquery.tmpl.min.js"></script>
+    <script src = "js/src/Settings.js"></script>
+    <script src = "js/src/entries.js"></script>
+    
+    <script id = "settingsTemplate" type = "text/x-jquery-tmpl">
+    <div>
+        <div>
+            <label>Author Name</label>
+            <input type = "text" class = "authorName">
+        </div>
+        <div>
+            <label>Author Address</label>
+            <input type = "text" class = "authorAddress">
+        </div>
+        <div>
+            <label>Use Google Account</label>
+            <input type = "radio" name = "loginType" class = "loginTypeAccount" value = ${ACCOUNT}>
+            <br>
+            <label>Guest Login</label>
+            <input type = "radio" name = "loginType" class = "loginTypeGuest" value = ${GUEST}>
+        </div>
+        <div>
+            <label>Search Tag</label>
+            <input type = "checkbox" class = "searchOnTag" value = "searchOnTag">
+            <br>
+            <label>Search Body</label>
+            <input type = "checkbox" class = "searchOnBody" value = "searchOnBody">
+            <br>
+            <label>Search Attachment</label>
+            <input type = "checkbox" class = "searchOnAttachmentName" value = "searchOnAttachmentName">
+        </div>
+        <div>
+            <label>Entries Per Page</label>
+            <input type = "text" class = "entriesPerPage">
+        </div>
+        <div class = "buttons">
+            <button class = "save">Save</button>
+            <button class = "cancel">Cancel</button>
+        </div>
+    </div>
+    </script>    
   </body>
 </html>

@@ -1,0 +1,39 @@
+.settings {
+    z-index: 4;
+    border-radius: 10px;
+    border: solid 2px rgb(200, 240, 200);
+    padding: 2px;
+    background-color: rgb(240, 255, 240);
+}
+
+.settings .buttons {
+    text-align: right;
+}
+
+.settings .save {
+    margin: 10px;
+    font-size: x-large;
+}
+
+.settings .cancel {
+    margin: 10px;
+    font-size: x-large;
+}
+
+.settings {
+    font-size: large;
+}
+
+.settings div {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 20px;
+    margin-right: 50px;
+}
+
+.settings label {
+    font-weight: bold;
+    display: inline-block;
+    width: 300px;
+    color: rgb(220, 60, 60);
+}
