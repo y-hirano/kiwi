@@ -22,7 +22,11 @@
     <button id = "post">post</button>
     <button id = "get">get</button>
     <button id = "delete">deleteAll</button>
-    <p id = "console">console</p>
+    
+    <div id = "settings"></div>
+    <div id = "editing"></div>
+    <div id = "entries"></div>
+    <div id = "console"></div>
     
     <script src = "js/lib/jquery-1.7.2.min.js"></script>
     <script src = "js/lib/underscore-min.js"></script>
@@ -67,6 +71,17 @@
             <button class = "cancel">Cancel</button>
         </div>
     </div>
-    </script>    
+    <script id = "EditingView" type = "text/x-jquery-tmpl">
+    <div>
+    </div>
+    </script>
+    <script id = "EntriesView" type = "text/x-jquery-tmpl">
+    <div>
+    </div>
+    </script>
+    <script id = "ConsoleView" type = "text/x-jquery-tmpl">
+    <div>
+    </div>
+    </script>
   </body>
 </html>

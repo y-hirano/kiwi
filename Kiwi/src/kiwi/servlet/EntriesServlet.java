@@ -1,6 +1,8 @@
 package kiwi.servlet;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -11,12 +13,22 @@ import javax.servlet.http.*;
 
 import kiwi.Entry;
 
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+class InvalidUserException extends GeneralSecurityException {
+    InvalidUserException(String message) {
+        super(message);
+    }
+    InvalidUserException() {
+        super();
+    }
+}
 @SuppressWarnings("serial")
 public class EntriesServlet extends HttpServlet {
     private void outputError(HttpServletResponse resp, ServletResponse.Status status, Object errorBody) throws IOException {
@@ -30,29 +42,36 @@ public class EntriesServlet extends HttpServlet {
     }
 
     public static final int NUM_MAX_QUERY_RESULTS = 50;
+    
+    static User selectUser(HttpServletRequest req) throws InvalidParameterException, InvalidUserException {
+        User user = null;
+        Account.Type accountType = Account.get((String)req.getParameter("account"));
+        switch (accountType) {
+        case ACCOUNT:
+            user = UserServiceFactory.getUserService().getCurrentUser();
+            if (user == null) {
+                throw new InvalidUserException();
+            }
+            break;
+        case GUEST:
+            user = null;
+            break;
+        default:
+            throw new InvalidParameterException();
+        }
+        return user;
+    }
+    
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setContentType("text/plain");
         resp.setCharacterEncoding("utf-8");
-        User user = null;
         EntityManager em = null;
         
         try {
-            Account.Type accountType = Account.get((String)req.getParameter("account"));
-            switch (accountType) {
-            case ACCOUNT:
-                user = UserServiceFactory.getUserService().getCurrentUser();
-                if (user == null) {
-                    // not logged in
-                    outputError(resp, ServletResponse.Status.LOGIN_ERROR);
-                    return;
-                }
-                break;
-            case GUEST:
-                user = null;
-                break;
-            }
+            User user = selectUser(req);
             em = ServiceFactory.getEntityManager().createEntityManager();
-            Query q = em.createQuery("select from Entry where user = :user");
+            Query q = em.createQuery("select from :kind where user = :user");
+            q.setParameter(":kind", Entry.KIND);
             q.setParameter(":user", user);
             q.setMaxResults(NUM_MAX_QUERY_RESULTS);
             List<JSONEntry> es = new ArrayList<JSONEntry>();
@@ -60,6 +79,9 @@ public class EntriesServlet extends HttpServlet {
                 es.add(new JSONEntry((Entry) e));
             }
             resp.getWriter().println(new Gson().toJson(es));
+        } catch (InvalidUserException e) {
+            e.printStackTrace();
+            outputError(resp, ServletResponse.Status.LOGIN_ERROR);
         } catch (Exception e) {
             e.printStackTrace();
             outputError(resp, ServletResponse.Status.UNKNOWN_ERROR);
@@ -78,13 +100,15 @@ public class EntriesServlet extends HttpServlet {
         EntityManager em = null;
         
         try {
-            em =ServiceFactory.getEntityManager().createEntityManager();
-            Date date = new Date(Long.parseLong(req.getParameter("date")));
-            String authorName = "Yutaka Hirano";
-            String authorAddress = "yuta@luna";
-            String tag = req.getParameter("tag");
-            Text text = new Text(req.getParameter("body"));
-            em.persist(Entry.create(null, date, authorName, authorAddress, tag, text.getValue()));
+            em = ServiceFactory.getEntityManager().createEntityManager();
+            User user = selectUser(req);
+            em.persist(Entry.create(req, user));
+        } catch (InvalidUserException e) {
+            e.printStackTrace();
+            outputError(resp, ServletResponse.Status.LOGIN_ERROR);
+        } catch (Exception e) {
+            e.printStackTrace();
+            outputError(resp, ServletResponse.Status.UNKNOWN_ERROR);
         } finally {
             if (em != null) {
                 em.close();
@@ -98,22 +122,8 @@ public class EntriesServlet extends HttpServlet {
         System.out.println(new Gson().toJson(req.getParameterMap()));
         System.out.println(req.getAttribute("account") + ", " + req.getParameter("account"));
         try {
-            Account.Type accountType = Account.get((String)req.getParameter("account"));
-            User user = null;
-            switch (accountType) {
-            case ACCOUNT:
-                user = UserServiceFactory.getUserService().getCurrentUser();
-                if (user == null) {
-                    // not logged in
-                    outputError(resp, ServletResponse.Status.LOGIN_ERROR);
-                    return;
-                }
-                break;
-            case GUEST:
-                user = null;
-                break;
-            }
-            em =ServiceFactory.getEntityManager().createEntityManager();
+            User user = selectUser(req);
+            em = ServiceFactory.getEntityManager().createEntityManager();
             if ("true".equals(req.getParameter("deleteAll"))) {
                 Query q = em.createQuery("delete from Entry where user = :user");
                 q.setParameter("user", user);
@@ -124,6 +134,9 @@ public class EntriesServlet extends HttpServlet {
             } else {
                 outputError(resp, ServletResponse.Status.UNKNOWN_ERROR);
             }
+        } catch (InvalidUserException e) {
+            e.printStackTrace();
+            outputError(resp, ServletResponse.Status.LOGIN_ERROR);
         } catch (Exception e) {
             e.printStackTrace();
             outputError(resp, ServletResponse.Status.UNKNOWN_ERROR);

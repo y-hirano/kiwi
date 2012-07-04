@@ -45,7 +45,7 @@ public class ChangeLogReaderTest {
     @Test
     public void testSimpleEntry() throws Exception {
         Entry expected = Entry.create(user, date(2001, 8, 11), "name", "address", "tag", "body");
-        String input = String.format("%04d-%02d-%02d %s <%s>\n\t%s: %s\n", 
+        String input = String.format("%04d-%02d-%02d %s <%s>\n\t* %s: %s\n", 
                        2001, 8, 11, "name", "address", "tag", "body");
         
         reader.read(new StringReader(input));
@@ -57,7 +57,7 @@ public class ChangeLogReaderTest {
     public void testMultilineBodyEntry() throws Exception {
         Entry expected = Entry.create(user, date(2001, 8, 11), 
                 "name", "address", "tag", "body\n\n \nbody2");
-        String input = String.format("%04d-%02d-%02d %s <%s>\n\t%s: %s\n", 
+        String input = String.format("%04d-%02d-%02d %s <%s>\n\t* %s: %s\n", 
                 2001, 8, 11, "name", "address", "tag", "body\n\t\n\t \n\tbody2");
         
         reader.read(new StringReader(input));
@@ -74,16 +74,16 @@ public class ChangeLogReaderTest {
                 );
         StringBuilder builder = new StringBuilder();
         builder.append(String.format("%04d-%02d-%02d %s <%s>\n", 2004, 8, 11, "name 1", "address 1"));
-        builder.append(String.format("\t%s: %s\n", "tag1", "hello\n\tworld"));
+        builder.append(String.format("\t* %s: %s\n", "tag1", "hello\n\tworld"));
         builder.append("\n");
-        builder.append(String.format("\t%s: %s\n", "tag2", "foobar\n\thoge: fuga"));
+        builder.append(String.format("\t* %s: %s\n", "tag2", "foobar\n\thoge: fuga"));
         builder.append("\n");
         builder.append(String.format("%04d-%02d-%02d %s <%s>\n", 2004, 8, 11, "name3", "address3"));
-        builder.append(String.format("\t%s: %s\n", "tag3", "hello world"));
+        builder.append(String.format("\t* %s: %s\n", "tag3", "hello world"));
         builder.append("\n");
         builder.append("\n");
         builder.append(String.format("%04d-%02d-%02d %s <%s>\n", 2004, 12, 3, "name4", "address4"));
-        builder.append(String.format("\t%s: %s\n", "tag4", "hogefuga"));
+        builder.append(String.format("\t* %s: %s\n", "tag4", "hogefuga"));
         builder.append("\n");
         builder.append("\n");
         builder.append("\n");
@@ -93,7 +93,7 @@ public class ChangeLogReaderTest {
     }
     @Test
     public void testClearExistingEntries() throws Exception {
-        reader.read(new StringReader("2012-03-21 x <y>\n\ttag: body\n"));
+        reader.read(new StringReader("2012-03-21 x <y>\n\t* tag: body\n"));
         assertThat(reader.getEntries().size(), is(1));
         reader.read(new StringReader(""));
         assertThat(reader.getEntries().size(), is(0));
@@ -101,7 +101,7 @@ public class ChangeLogReaderTest {
     
     @Test
     public void testRetainExistingEntriesOnError() throws Exception {
-        reader.read(new StringReader("2012-03-21 x <y>\n\ttag: body\n"));
+        reader.read(new StringReader("2012-03-21 x <y>\n\t* tag: body\n"));
         List<Entry> entries = reader.getEntries();
         assertThat(entries.size(), is(1));
         try {

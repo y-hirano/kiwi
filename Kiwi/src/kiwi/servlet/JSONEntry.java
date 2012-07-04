@@ -13,7 +13,7 @@ class JSONEntry {
         c.setTime(e.getDate());
         year = c.get(Calendar.YEAR);
         month = c.get(Calendar.MONTH);
-        date = c.get(Calendar.DATE);
+        mday = c.get(Calendar.DATE);
         authorName = e.getAuthorName();
         authorAddress = e.getAuthorAddress();
         tag = e.getTag();
@@ -21,13 +21,14 @@ class JSONEntry {
     }
     Entry getEntry(User user) {
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        c.set(year, month, date, 0, 0, 0);
+        c.set(year, month, mday, 0, 0, 0);
         c.set(Calendar.MILLISECOND, 0);
         return Entry.create(user, c.getTime(), authorName, authorAddress, tag, body);
     }
+    Long id;
     int year;
     int month;
-    int date;
+    int mday;
     String authorName;
     String authorAddress;
     String tag;

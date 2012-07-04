@@ -1,15 +1,30 @@
 package kiwi;
 
+import java.security.InvalidParameterException;
+import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.servlet.http.HttpServletRequest;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.users.User;
+
+
+class KeyFactory {
+    Key createKey(String kind, long id) {
+        return com.google.appengine.api.datastore.KeyFactory.createKey(kind, id);
+    }
+}
 
 /**
  * An Entry holds properties of a Kiwi entry.
@@ -19,10 +34,49 @@ import com.google.appengine.api.users.User;
 @Entity
 public class Entry {
     public static Entry create(User user, Date date, String authorName, String authorAddress, String tag, String body) {
-        return new Entry(user, date, authorName, authorAddress, tag, body);
+        return new Entry(null, user, date, authorName, authorAddress, tag, body);
     }
     
-    private Entry(User user, Date date, String name, String address, String tag, String body) {
+    public static Entry create(Key key, User user, Date date, String authorName, String authorAddress, String tag, String body) {
+        return new Entry(key, user, date, authorName, authorAddress, tag, body);
+    }
+    public static Entry create(Long id, User user, Date date, String authorName, String authorAddress, String tag, String body) {
+        Key key = id == null? null: com.google.appengine.api.datastore.KeyFactory.createKey(KIND, id);
+        return new Entry(key, user, date, authorName, authorAddress, tag, body);
+    }
+    
+    
+    public static Entry create(HttpServletRequest req, User user, KeyFactory factory) throws InvalidParameterException {
+        String syear = req.getParameter("year");
+        String smonth = req.getParameter("month");
+        String smday = req.getParameter("mday");
+        String authorName = req.getParameter("authorName");
+        String authorAddress = req.getParameter("authorAddress");
+        String tag = req.getParameter("tag");
+        String body = req.getParameter("body");
+        
+        if (syear == null || smonth == null || smday == null || authorName == null || authorAddress == null ||
+                tag == null || body == null) {
+            throw new InvalidParameterException();
+        }
+        
+        int year = Integer.parseInt(syear);
+        int month = Integer.parseInt(smonth);
+        int mday = Integer.parseInt(smday);
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.ENGLISH);
+        c.set(year, month, mday, 0, 0, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        
+        String id = req.getParameter("id");
+        return new Entry(id != null? factory.createKey(KIND, Long.parseLong(id)): null, user, c.getTime(), authorName, authorAddress, tag, body);
+    }
+    
+    public static Entry create(HttpServletRequest req, User user) {
+        return create(req, user, new KeyFactory());
+    }
+    
+    private Entry(Key key, User user, Date date, String name, String address, String tag, String body) {
+        this.key = key;
         this.user = user;
         this.date = date;
         this.authorName = name;
@@ -114,4 +168,6 @@ public class Entry {
     private String tag; 
     private String body;
     private Text longBody;
+
+    public static String KIND = "Entry";
 }

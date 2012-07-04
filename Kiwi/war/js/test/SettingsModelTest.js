@@ -3,7 +3,7 @@ TestCase('SettingsModel', {
         window.sessionStorage.clear();
     },
     'test: initial value': function () {
-        var settings = new kiwi.Settings({storage: sessionStorage});
+        var settings = new kiwi.Settings({});
 
         assertFalse(settings.isSet);
         assertSame('', settings.authorName);
@@ -18,7 +18,10 @@ TestCase('SettingsModel', {
     'test: partially set': function () {
         sessionStorage.setItem('kiwi.settings', JSON.stringify({isSet: true, authorName: 'authorName', loginType: 'account', entriesPerPage: 42}));
 
-        var settings = new kiwi.Settings({storage: sessionStorage});
+        var settings = new kiwi.Settings({});
+        
+        settings.storage = sessionStorage;
+        settings.fetch();
         
         assertFalse(settings.isSet);
         assertSame('authorName', settings.authorName);
@@ -37,7 +40,9 @@ TestCase('SettingsModel', {
                 loginType: 'account', searchOnTag: false, searchOnBody: false, searchOnAttachmentName: true, entriesPerPage: 42
         };
         sessionStorage.setItem('kiwi.settings', JSON.stringify(data));
-        var settings = new kiwi.Settings({storage: sessionStorage});
+        var settings = new kiwi.Settings({});
+        settings.storage = sessionStorage;
+        settings.fetch();
         
         assertTrue(settings.isSet);
         assertSame('authorName', settings.authorName);
@@ -49,7 +54,9 @@ TestCase('SettingsModel', {
         assertSame(42, settings.entriesPerPage);
     },
     'test: invalid set': function () {
-        var settings = new kiwi.Settings({storage: sessionStorage});
+        var settings = new kiwi.Settings({});
+        settings.storage = sessionStorage;
+        settings.fetch();
         
         settings.authorName = 12;
         settings.authorAddress = 18;
@@ -73,9 +80,10 @@ TestCase('SettingsModel', {
                 loginType: 'account', searchOnTag: false, searchOnBody: false, searchOnAttachmentName: true, entriesPerPage: 42
         };
         var storage = sessionStorage;
-        var settings = new kiwi.Settings({storage: storage});
-        settings.set(data);
-        var df = settings.save();
+        var settings = new kiwi.Settings({});
+        settings.storage = sessionStorage;
+        settings.fetch();
+        var df = settings.save(data);
         
         assertEquals('resolved', df.state());
         data = JSON.parse(storage.getItem('kiwi.settings'));
@@ -89,7 +97,9 @@ TestCase('SettingsModel', {
      },
      
      'test: saved model is set': function () {
-         var settings = new kiwi.Settings({storage: sessionStorage});
+         var settings = new kiwi.Settings();
+         settings.storage = sessionStorage;
+         settings.fetch();
          
          assertFalse(settings.isSet);
          var df = settings.save();

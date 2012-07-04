@@ -1,8 +1,14 @@
 $(function () {
     'use strict';
-    var settings = new kiwi.Settings({storage: sessionStorage});
+    var settings = new kiwi.Settings();
+    settings.fetch();
     var settingsView = new kiwi.SettingsView({model: settings, tmpl: $('#settingsTemplate')});
-    settingsView.$el.appendTo('body');
+    settingsView.$el.appendTo($('#settings'));
+    if (settings.isSet) {
+        settingsView.hide();
+    } else {
+        settingsView.show();
+    }
 });
 
 

@@ -3,7 +3,6 @@ kiwi.testing = kiwi.testing || {};
 TestCase('SettingsView', {
     'setUp': function () {
         'use strict';
-        
         /*:DOC tmpl = <script type = "text/x-jquery-tmpl"><div>
           <input type = "text" class = "authorName">
           <input type = "text" class = "authorAddress">

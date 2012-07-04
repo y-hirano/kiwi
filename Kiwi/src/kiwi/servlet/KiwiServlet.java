@@ -1,4 +1,4 @@
-package kiwi;
+package kiwi.servlet;
 
 import java.io.IOException;
 
