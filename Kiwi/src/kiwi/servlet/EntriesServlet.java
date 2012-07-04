@@ -115,6 +115,26 @@ public class EntriesServlet extends HttpServlet {
             }
         }
     }
+
+    public void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        EntityManager em = null;
+        
+        try {
+            em = ServiceFactory.getEntityManager().createEntityManager();
+            User user = selectUser(req);
+            em.persist(Entry.create(req, user));
+        } catch (InvalidUserException e) {
+            e.printStackTrace();
+            outputError(resp, ServletResponse.Status.LOGIN_ERROR);
+        } catch (Exception e) {
+            e.printStackTrace();
+            outputError(resp, ServletResponse.Status.UNKNOWN_ERROR);
+        } finally {
+            if (em != null) {
+                em.close();
+            }
+        }
+    }
     @Override
     public void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         System.out.println("DELETE");
