@@ -71,9 +71,17 @@
             <button class = "cancel">Cancel</button>
         </div>
     </div>
-    <script id = "EditingView" type = "text/x-jquery-tmpl">
+    <script id = "EditorView" type = "text/x-jquery-tmpl">
     <div>
-    </div>
+          <input type = "text" class = "date">
+          <input type = "text" class = "authorName">
+          <input type = "text" class = "authorAddress">
+          <input type = "text" class = "tag">
+          <input type = "text" class = "body">
+          <button class = "emit">${emitLabel}</button>
+          <button class = "clear">Clear</button>
+          </div>
+    <div>
     </script>
     <script id = "EntriesView" type = "text/x-jquery-tmpl">
     <div>

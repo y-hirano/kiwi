@@ -1,62 +1,39 @@
 var kiwi = window.kiwi || {};
 
-kiwi.EditorModel = Backbone.Model.extend({
-    url: '/kiwi/Entries',
-    initialize: function () {
-        var props = ['authorName', 'authorAddress', 'date', 'tag', 'body'];
-        var self = this;
-        props.map(function (name) {
-            Object.defineProperty(self, name, {
-                get: function () {return self.get(name); },
-                set: function (v) {self.set(name, v); }
-            });
-        });
-        this.authorName = this.authorName || '';
-        this.authorAddress = this.authorAddress || '';
-        this.date = this.date || '1970-01-01';
-        this.tag = this.tag || 'tag';
-        this.body = this.body || '';
+kiwi.EditorView = Backbone.View.extend({
+    events: {
+        'click .emit': '_emit'
     },
-    validate: function (attrs) {
-        function validateDate(year, month, mday) {
-            var numDates = ['31', '29', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31'];
-            jstestdriver.console.log('' + year + ', ' + month + ', ' + mday);
-            if (year < 0) {
-                return false;
-            }
-            if (!(1 <= month && month <= 12)) {
-                return false;
-            }
-            if (!(1 <= mday && mday <= numDates[month - 1])) {
-                return false;
-            }
-            if (month == 2 && (year % 4 !== 0 || (year % 100 == 0 && year % 400 !== 0))) {
-                return mday <= 28;
-            }
-            return true;
-        }
-        if (attrs.hasOwnProperty('date')) {
-            var date = attrs.date;
-            this._datePattern = new RegExp('^(\\d+)-(\\d+)-(\\d+)$');
-            var match = date.match(this._datePattern);
-            jstestdriver.console.log('match = ' + match);
-            if (match === null) {
-                jstestdriver.console.log('return: ' + date + ' does not match ' + this._datePattern);
-                return date + ' does not match ' + this._datePattern;
-            }
-            if (!validateDate(Number(match[1]), Number(match[2]), Number(match[3]))) {
-                return date + ': value error';
-            }
-        }
-        if (attrs.hasOwnProperty('tag')) {
-            if (attrs.tag === '') {
-                return 'Tag must not be empty';
-            }
+    initialize: function(options) {
+        'use strict';
+        var entry = this.model;
+        var el = $.tmpl(options.tmpl, {emitLabel: entry.isNew()? 'New': 'Apply'});
+        this.$el.append(el);
+        this.render();
+    },
+    render: function() {
+        'use strict';
+        var el = this.$el;
+        var entry = this.model;
+        $('.date', el).val(entry.date);
+        $('.authorName', el).val(entry.authorName);
+        $('.authorAddress', el).val(entry.authorAddress);
+        $('.tag', el).val(entry.tag);
+        $('.body', el).val(entry.body);
+    },
+    
+    _emit: function () {
+        var entry = this.model;
+        var el = this.$el;
+        try {
+            entry.date = $('.date', el).val();
+            entry.authorName = $('.authorName', el).val();
+            entry.authorAddress = $('.authorAddress', el).val();
+            entry.tag = $('.tag', el).val();
+            entry.body = $('.body', el).val();
+            entry.save();
+        } catch (e) {
+            this.render();
         }
     }
-});
-
-kiwi.EditingView = Backbone.View.extend({
-    
-    
 });

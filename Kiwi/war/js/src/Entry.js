@@ -3,24 +3,60 @@ var kiwi = window.kiwi || {};
 kiwi.Entry = Backbone.Model.extend({
     url: '/kiwi/Entries',
     initialize: function () {
-        var props = ['authorName', 'authorAddress', 'date', 'tag', 'body'];
+        var props = ['authorName', 'authorAddress', 'year', 'month', 'mday', 'tag', 'body'];
         var self = this;
         props.map(function (name) {
             Object.defineProperty(self, name, {
                 get: function () {return self.get(name); },
-                set: function (v) {self.set(name, v); }
+                set: function (v) {
+                    var r = self.set(name, v);
+                    if (r === false) {
+                        throw new Error('Failed setter: ' + name + ' := ' + v);
+                    }
+                }
             })
         });
+        Object.defineProperty(self, 'date', {
+            get: function () {
+                var syear = String(this.year);
+                var smonth = String(this.month);
+                var smday = String(this.mday);
+                while (syear.length < 4) {
+                    syear = '0' + syear;
+                }
+                while (smonth.length < 2) {
+                    smonth = '0' + smonth;
+                }
+                while (smday.length < 2) {
+                    smday = '0' + smday;
+                }
+                return syear + '-' + smonth + '-' + smday;
+            },
+            set: function (date) {
+                var pattern = new RegExp('^(\\d+)-(\\d+)-(\\d+)$');
+                var match = date.match(pattern);
+                if (match === null) {
+                    throw new Error(date + ' does not match ' + pattern);
+                }
+                var o = {year: Number(match[1]), month: Number(match[2]), mday: Number(match[3])};
+                if (this.set(o) === false) {
+                    throw new Error(date + ': value error');
+                }
+            }
+        });
+        
+        
         this.authorName = this.authorName || '';
         this.authorAddress = this.authorAddress || '';
-        this.date = this.date || '1970-01-01';
+        if (this.year === undefined || this.month === undefined || this.mday === undefined) {
+            this.set({year: 1970, month: 1, mday: 1});
+        }
         this.tag = this.tag || 'tag';
         this.body = this.body || 'body';
     },
     validate: function (attrs) {
         function validateDate(year, month, mday) {
             var numDates = ['31', '29', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31'];
-            jstestdriver.console.log('' + year + ', ' + month + ', ' + mday);
             if (year < 0) {
                 return false;
             }
@@ -35,17 +71,21 @@ kiwi.Entry = Backbone.Model.extend({
             }
             return true;
         }
-        if (attrs.hasOwnProperty('date')) {
-            var date = attrs.date;
-            this._datePattern = new RegExp('^(\\d+)-(\\d+)-(\\d+)$');
-            var match = date.match(this._datePattern);
-            jstestdriver.console.log('match = ' + match);
-            if (match === null) {
-                jstestdriver.console.log('return: ' + date + ' does not match ' + this._datePattern);
-                return date + ' does not match ' + this._datePattern;
+        if (attrs.hasOwnProperty('year') || attrs.hasOwnProperty('month') || attrs.hasOwnProperty('mday')) {
+            var year = this.year;
+            var month = this.month;
+            var mday = this.mday;
+            if (attrs.hasOwnProperty('year')) {
+                year = attrs.year;
             }
-            if (!validateDate(Number(match[1]), Number(match[2]), Number(match[3]))) {
-                return date + ': value error';
+            if (attrs.hasOwnProperty('month')) {
+                month = attrs.month;
+            }
+            if (attrs.hasOwnProperty('mday')) {
+                mday = attrs.mday;
+            }
+            if (!validateDate(year, month, mday)) {
+                return 'Invalid date value: ' + JSON.stringify({year: year, month: month, mday: mday});
             }
         }
         if (attrs.hasOwnProperty('tag')) {
